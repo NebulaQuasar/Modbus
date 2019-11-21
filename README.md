@@ -1,2 +1,4 @@
-# Modbus
-Implementation of MODBUS Protocol in "C" 
+# MODBUS Protocol
+
+Implementation of MODBUS Protocol in "C" Language.
+
