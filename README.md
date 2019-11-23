@@ -1,4 +1,4 @@
 # MODBUS Protocol
 
-Implementation of MODBUS Protocol in "C" Language.
+Generic Implementation of MODBUS RTU.
 
