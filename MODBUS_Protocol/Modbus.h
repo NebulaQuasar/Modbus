@@ -39,28 +39,50 @@ typedef uint16_t Input_Registers;
 typedef uint16_t Holding_Registers;
 
 typedef enum {
-    Baudrate4800 = 0,
-    Baudrate9600,
-    Baudrate14400,
-    Baudrate19200,
-    Baudrate38400,
-    Baudrate57600,
-    Baudrate115200,
-    Baudrate128000,
-    Baudrate256000,
-    BaudrateNone,
+    Baudrate4800 = 4800,
+    Baudrate9600 = 9600,
+    Baudrate14400 = 14400,
+    Baudrate19200 = 19200,
+    Baudrate38400 = 38400,
+    Baudrate57600 = 57600,
+    Baudrate115200 = 115200,
+    Baudrate128000 = 128000,
+    Baudrate256000 = 256000,
+    BaudrateMax
 } BaudRate;
 
 typedef enum {
-    NoneParity = 0,
-    ODDParity,
-    EvenParity,
+    NoParity = 0,
+    ODDParity = 1,
+    EvenParity = 2,
+    ParityMax
 } Parity;
 
+typedef enum {
+    DataBits5 = 5,
+    DataBits6 = 6,
+    DataBits7 = 7,
+    DataBits8 = 8,
+    DataBitsMax
+} Data_Bits;
+
+typedef enum {
+    StopBits0 = 0,
+    StopBits1 = 1,
+    StopBits2 = 2,
+    StopBitsMax
+} Stop_Bits;
+
+/*
+ *!-  Configuration required to Establish Connection.
+ */
+
 typedef struct {
-    BaudRate  baud;
+    BaudRate  baudrate;
+    Data_Bits data_bits;
     Parity    parity;
-} RTU_Config;
+    Stop_Bits stop_bits;
+} RTU_Configuration;
 
 /*
  *!-  The Below "Modbus_Data" Structure has all
@@ -108,46 +130,48 @@ typedef struct {
 } Modbus_Packet;
 
 typedef enum {
-    Fun_Code00  =   00,      //!- Invalid Function Code
+    Fun_Code00 = 0x00,  //!-  Invalid Function Code
+    Fun_Code08 = 0x08,  //!-  Diagnostic
+    Fun_Code11 = 0x0B,  //!-  Get COM Event Counter
+    Fun_Code12 = 0x0C,  //!-  Get COM Event Log
+    Fun_Code17 = 0x11,  //!-  Report Slave ID
+    Fun_Code43 = 0x2B,  //!-  Read Device Identification
 
-    //!- Class 0 Codes
-    Fun_Code03  =   03,      //!- Read Multiple/Holding Registers
-    Fun_Code16  =   16,      //!- Write Multiple Registers
+    //!-  Function Codes that are Generally Used.
+    //!-  Class 0 Codes
+    Fun_Code03 = 0x03,  //!-  Read Multiple/Holding Registers
+    Fun_Code16 = 0x10,  //!-  Write Multiple Registers
 
-    //!- Class 1 Codes
-    Fun_Code01  =   01,      //!- Read Coils Status
-    Fun_Code02  =   02,      //!- Read Discrete Inputs Status
-    Fun_Code04  =   04,      //!- Read Input Registers
-    Fun_Code05  =   05,      //!- Write Single Coil
-    Fun_Code06  =   06,      //!- Write Single Register
-    Fun_Code07  =   07,      //!- Read Exception Status (serial-only)
+    //!-  Class 1 Codes
+    Fun_Code01 = 0x01,  //!-  Read Coils Status
+    Fun_Code02 = 0x02,  //!-  Read Discrete Inputs Status
+    Fun_Code04 = 0x04,  //!-  Read Input Registers
+    Fun_Code05 = 0x05,  //!-  Write Single Coil
+    Fun_Code06 = 0x06,  //!-  Write Single Register
+    Fun_Code07 = 0x07,  //!-  Read Exception Status (serial-only)
 
-    //!- Class 2 Codes
-    Fun_Code24  =   24,      //!- Read FIFO
-    Fun_Code23  =   23,      //!- Read/Write Multiple Registers
-    Fun_Code22  =   22,      //!- Mask Write Register
-    Fun_Code21  =   21,      //!- Write File Record
-    Fun_Code20  =   20,      //!- Read File Record
-    Fun_Code15  =   15       //!- Write Multiple Coils
+    //!-  Class 2 Codes
+    Fun_Code24 = 0x18,  //!-  Read FIFO
+    Fun_Code23 = 0x17,  //!-  Read/Write Multiple Registers
+    Fun_Code22 = 0x16,  //!-  Mask Write Register
+    Fun_Code21 = 0x15,  //!-  Write File Record
+    Fun_Code20 = 0x14,  //!-  Read File Record
+    Fun_Code15 = 0x0F   //!-  Write Multiple Coils
 } Funct_Code;
 
 typedef enum {
-    ILLEGAL_FUNCTION                =   0x01,
-    ILLEGAL_DATA_ADDRESS            =   0x02,
-    ILLEGAL_DATA_VALUE              =   0x03,
-    SLAVE_DEVICE_FAILURE            =   0x04,
-    ACKNOWLEDGE                     =   0x05,
-    SLAVE_DEVICE_BUSY               =   0x06,
-    MEMORY_PARITY_ERROR             =   0x08,
-    GATEWAY_PATH_UNAVAILABLE        =   0x0A,
-    TARGET_DEVICE_FAILED_TO_RESPOND =   0x0B
+    ILLEGAL_FUNCTION                = 0x01,
+    ILLEGAL_DATA_ADDRESS            = 0x02,
+    ILLEGAL_DATA_VALUE              = 0x03,
+    SLAVE_DEVICE_FAILURE            = 0x04,
+    ACKNOWLEDGE                     = 0x05,
+    SLAVE_DEVICE_BUSY               = 0x06,
+    MEMORY_PARITY_ERROR             = 0x08,
+    GATEWAY_PATH_UNAVAILABLE        = 0x0A,
+    TARGET_DEVICE_FAILED_TO_RESPOND = 0x0B
 } Modbus_Exception_Code;
 
-typedef struct Configuration {
-/*
- *!-  Configuration required to Establish Connection.
- */
-} RTU_Config;
+
 
 /****************************************************************************
 !-  GLOBAL FUNCTIONS
@@ -160,7 +184,7 @@ void Modbus_Main(
         void);
 
 Bool Setup_RTU_Connection(
-        RTU_Config *const ConfigPtr);
+        RTU_Configuration *const ConfigPtr);
 
 Bool Validate_Function_Code(
         const uint8_t FunctionCode);
@@ -185,13 +209,13 @@ Bool Set_Function_Code(
         Modbus_Packet *UsrPacket,
         uint8_t UsrFunctCode);
 
-Bool Set_StartAddress(
-        Modbus_Packet *UsrPacket,
-        uint16_t UsrStartAddress);
-
 Bool Set_SubFunction_Code(
         Modbus_Packet *UsrPacket,
         uint8_t UsrSubFunctCode);
+
+Bool Set_StartAddress(
+        Modbus_Packet *UsrPacket,
+        uint16_t UsrStartAddress);
 
 Bool Set_Register_Quantity(
         Modbus_Packet *UsrPacket,

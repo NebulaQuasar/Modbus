@@ -60,20 +60,26 @@ void Modbus_Main(void) {
 Bool Validate_Function_Code(const uint8_t FunctionCode) {
     Bool Ckeck_OK = FALSE;
     switch(FunctionCode) {
-        case Fun_Code03:
-        case Fun_Code16:
+
         case Fun_Code01:
         case Fun_Code02:
+        case Fun_Code03:
         case Fun_Code04:
         case Fun_Code05:
         case Fun_Code06:
         case Fun_Code07:
-        case Fun_Code24:
-        case Fun_Code23:
-        case Fun_Code22:
-        case Fun_Code21:
-        case Fun_Code20:
+        case Fun_Code08:
+        case Fun_Code11:
+        case Fun_Code12:
         case Fun_Code15:
+        case Fun_Code16:
+        case Fun_Code17:
+        case Fun_Code20:
+        case Fun_Code21:
+        case Fun_Code22:
+        case Fun_Code23:
+        case Fun_Code24:
+        case Fun_Code43:
             Ckeck_OK = TRUE;
             break;
 
@@ -131,8 +137,13 @@ uint8_t Get_Exception_FunctCode(const uint8_t FunctionCode) {
  *!-  The configuration like BaudRate, Parity
  *!-  and COM Port required has to set here.
  */
-Bool Setup_RTU_Connection(RTU_Config *const ConfigPtr) {
- return TRUE;
+Bool Setup_RTU_Connection(RTU_Configuration *const ConfigPtr) {
+
+    Bool Ckeck_OK = FALSE;
+
+    Ckeck_OK = UART_Connect(&ConfigPtr);
+
+    return Ckeck_OK;
 }
 
 /*
@@ -350,10 +361,16 @@ void Modbus_Request(Modbus_Packet *const REQPacket) {
     Frame[Index] = REQPacket->Address_Low;
     Index++;
 
-    //!-  Fill Frame[5] with MSB of Quantity.
+    //!-  Fill Frame[5] with Sub-Function Code (If any Present).
+    if (REQPacket->Holding_Register->HRegister != 0) {
+        Frame[Index] = REQPacket->Subfunction_Code;
+        Index++;
+    }
+
+    //!-  Fill Frame[6] with MSB of Quantity.
     Frame[Index] = REQPacket->Registers_Quantity_Hi;
     Index++;
-    //!-  Fill Frame[6] with LSB of Quantity.
+    //!-  Fill Frame[7] with LSB of Quantity.
     Frame[Index] = REQPacket->Registers_Quantity_Low;
     Index++;
 
@@ -365,8 +382,10 @@ void Modbus_Request(Modbus_Packet *const REQPacket) {
         &(REQPacket->CRC_Hi),
         &(REQPacket->CRC_Low));
 
+    //!-  Fill Frame[8] with MSB of CRC.
     Frame[Index] = REQPacket->CRC_Hi;
     Index++;
+    //!-  Fill Frame[9] with LSB of CRC.
     Frame[Index] = REQPacket->CRC_Low;
 }
 
