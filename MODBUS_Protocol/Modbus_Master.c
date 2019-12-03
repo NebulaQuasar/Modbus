@@ -1,78 +1,130 @@
-/****************************************************************************/
-/*!-  File Name: Modbus_Master.c
+/****************************************************************************
+!-  File Name: Modbus_Master.c
  ****************************************************************************/
+
+//!-  Headers
 #include <Modbus.h>
+
+/****************************************************************************
+!-  LOCAL DEFINITIONS
+*****************************************************************************/
+
+#define SLAVE_ID_1 1
+#define FCODE_03 03
+#define SUBFCODE_0 00
+
+/****************************************************************************
+!-  LOCAL VARIABLES
+*****************************************************************************/
 
 static Modbus_Packet ModbusFrame;
 
+uint16_t Address = 0x0000;
+uint16_t RegQty  = 1;
+uint16_t Data    = 1;
+uint8_t *PacketPtr = NULL;
+
+/****************************************************************************
+!-  LOCAL FUNCTIONS
+*****************************************************************************/
+
 int main() {
+
     Bool Ckeck_OK = FALSE;
-    RTU_Configuration RTU_Config;
-    Modbus_Packet Master_Request;
 
-    //!-  Set the Configuration for UART Connection.
-    RTU_Config->baudrate = Baudrate9600;
-    RTU_Config->data_bits = DataBits8;
-    RTU_Config->parity = EvenParity;
-    RTU_Config->stop_bits = StopBits0;
-
-    //!-  Start a Timer.
-    //!-  While(Time Not Complete) keep trying.
-    Ckeck_OK = Setup_RTU_Connection(&RTU_Config);
-    //!-  if (Ckeck_OK == FALSE) {
-    //!-  printf("Trying to Connect... \n");
-    //!-  }
-    //!-  if (Ckeck_OK == TRUE) {break;}
-    //!-  if (Timer Over) (break;)
-
-    if (Ckeck_OK == FALSE) {
-        printf("Error in Establishing Connection \n");
-        //!-  exit(1);
+    //!-  Call to Modbus_Init() Function.
+    Ckeck_OK = Modbus_Init();
+    if (Ckeck_OK != TRUE) {
+        printf("Error in MODBUS Initialization \n");
+        exit(1);
     }
 
-    //!-  Set Device ID of the Slave.
-    Master_Request->Device_ID = 0x0A;  //!-  10 in Decimal
+    //!-  Call to Set_Device_ID() Function.
+    //!-  This will set the Valid Device ID.
+    Ckeck_OK = Set_Device_ID(&ModbusFrame, SLAVE_ID_1);
+    if (Ckeck_OK != TRUE) {
+        printf("Error: Check Device ID \n");
+        exit(1);
+    }
 
-    //!-  Set Function Code of the Slave.
-    Master_Request->Function_Code = 0x03;  //!-  03 in Decimal
+    //!-  Call to Set_Function_Code() Function.
+    //!-  This will set the Valid Function Code.
+    Ckeck_OK = Set_Function_Code(&ModbusFrame, FCODE_03);
+    if (Ckeck_OK != TRUE) {
+        printf("Error: Check Function Code \n");
+        exit(1);
+    }
 
-    //!-  Set Sub-Function Code of the Slave.
-    Master_Request->Subfunction_Code = 0x00;  //!-  00 in Decimal
+    //!-  Call to Set_SubFunction_Code() Function.
+    //!-  This will set the Valid Sub Function Code.
+    //!-  This call is usually Not Used.
+    //!-  Set Correct Function Code (i.e., 08 or 43) to use this Call.
+    Ckeck_OK = Set_SubFunction_Code(&ModbusFrame, SUBFCODE_0);
+    if (Ckeck_OK != TRUE) {
+        printf("Error: Check Sub Function Code \n");
+        exit(1);
+    }
 
-    //!-  Set Start Address of the Slave.
-    Master_Request->Address_Hi = 0x00;  //!-  00 in Decimal
-    Master_Request->Address_Low = 0x00;  //!-  00 in Decimal
+    //!-  Call to Set_StartAddress() Function.
+    //!-  This will set the Valid Start Address.
+    Ckeck_OK = Set_StartAddress(&ModbusFrame, Address);
+    if (Ckeck_OK != TRUE) {
+        printf("Error: Check Start Address \n");
+        exit(1);
+    }
 
-    //!-  Set Data to be Preset in the Slave.
-    //!-  Not Needed Here as of now since function code is 03.
+    //!-  Call to Set_Register_Quantity() Function.
+    //!-  This will set the Valid Register Quantity.
+    Ckeck_OK = Set_Register_Quantity(&ModbusFrame, RegQty);
+    if (Ckeck_OK != TRUE) {
+        printf("Error: Check Register Quantity \n");
+        exit(1);
+    }
 
-    //!-  Set Register Quantity.
-    Master_Request->Registers_Quantity_Hi = 0x00;
-    Master_Request->Registers_Quantity_Low = 0x01;
+    //!-  Call to Set_WriteSingleRegister() Function.
+    //!-  This will set the Data Value into Holding Register.
+    Ckeck_OK = Set_WriteSingleRegister(&ModbusFrame, Data);
+    if (Ckeck_OK != TRUE) {
+        printf("Error: Check Data \n");
+        exit(1);
+    }
 
-    //!-  Call the Request API of MODBUS.
-    Modbus_Request(&Master_Request);
+    //!-  Now the Structure Modbus Frame contains all the Required data
+    //!-  To make a Request to Slave Device.
 
-    //!-  Call the send API of MODBUS.
+    //!-  Call to Modbus_Request() Function.
+    //!-  This will form a Packet that can be sent on UART.
+    PacketPtr = Modbus_Request(&ModbusFrame);
 
+    //!-  The PacketPtr will be Send to USART.
 
-	Setup_RTU_Connection();
-
-
-      Construct_Message(&ModbusFrame);
-//      Uint8 u8Data[2];
-//      Unpack16_8bits(u16AbsLoadTo16BitKg, &u8Data[0], &u8Data[1]);
 }
 
-void Construct_Message(Modbus_Packet *const MessagePtr){
 
-    Funct_Code Read_Holding_Register = Fun_Code03;
 
-    MessagePtr->Device_ID                      = 01;
-    MessagePtr->Function_Code                  = Read_Holding_Register;
-    MessagePtr->Subfunction_Code               = 0x00;
-    MessagePtr->Address_Hi                     = 0x00;
-    MessagePtr->Registers_Quantity_Hi          = 01;
-    MessagePtr->Holding_Register->HRegister    = 01;
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
