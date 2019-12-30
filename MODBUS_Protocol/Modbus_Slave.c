@@ -1,9 +1,16 @@
+/*
+ * Modbus_Slave.c
+ *
+ *  Created on: 22 Dec 2019
+ *      Author: user
+ */
+
 /****************************************************************************
 !-  File Name: Modbus_Slave.c
  ****************************************************************************/
 
 //!-  Headers
-#include <Modbus.h>
+#include "Modbus.h"
 
 /****************************************************************************
 !-  LOCAL DEFINITIONS
@@ -18,18 +25,9 @@
 *****************************************************************************/
 
 int main() {
+
     Bool Ckeck_OK = FALSE;
 
-    //!-  Receive the Request from Master.
-
-    //!-  Validate the Function Code from Master.
-
-    //!-  Validate the Address Code from Master.
-
-    //!-  Validate the Data Value from Master.
-
-    //!-  Process the Received Function Code.
-
-    //!-  Send the Response to Master.
-
+    return Ckeck_OK;
 }
+

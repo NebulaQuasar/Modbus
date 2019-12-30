@@ -1,9 +1,16 @@
+/*
+ * CRC.h
+ *
+ *  Created on: 22-Dec-2019
+ *      Author: root
+ */
+
 /****************************************************************************
 !-  File Name:: CRC.h
  ****************************************************************************/
 
-#ifndef  __CRC_H_
-#define  __CRC_H_
+#ifndef __CRC_H_
+#define __CRC_H_
 
 //!-  Headers
 #include <stdint.h>
@@ -12,7 +19,7 @@
 !-  GLOBAL DEFINITIONS
 *****************************************************************************/
 
-/* Table of CRC Values for High–Order Byte */
+//!-  Table of CRC Values for High–Order Byte
 static  unsigned  char  auchCRCHi[] = {
     0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0,
     0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41,
@@ -42,7 +49,7 @@ static  unsigned  char  auchCRCHi[] = {
     0x80, 0x41, 0x00, 0xC1, 0x81, 0x40
 };
 
-/* Table of CRC Values for Low–Order Byte */
+//!-  Table of CRC Values for Low–Order Byte
 static  char  auchCRCLo[] = {
     0x00, 0xC0, 0xC1, 0x01, 0xC3, 0x03, 0x02, 0xC2, 0xC6, 0x06,
     0x07, 0xC7, 0x05, 0xC5, 0xC4, 0x04, 0xCC, 0x0C, 0x0D, 0xCD,
@@ -80,4 +87,4 @@ uint16_t Calculate_CRC16(
         uint8_t *MsgBuffer,
         uint16_t DataLength);
 
-#endif  /* __CRC_H_ */
+#endif /* __CRC_H_ */
